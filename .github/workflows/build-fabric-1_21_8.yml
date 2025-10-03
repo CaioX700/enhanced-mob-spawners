@@ -36,23 +36,21 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ github.run_id }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # ⚠️ Força o wrapper para 8.12 antes do build
-      - name: Force Gradle 8.12 in CI
+      # Escreve um wrapper 8.12 no runner (evita pegar 8.8)
+      - name: Write Gradle wrapper 8.12
         run: |
           mkdir -p gradle/wrapper
-          if [ -f gradle/wrapper/gradle-wrapper.properties ]; then
-            sed -i 's#^distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.12-bin.zip#' gradle/wrapper/gradle-wrapper.properties
-          else
-            cat > gradle/wrapper/gradle-wrapper.properties <<'EOF'
-distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.12-bin.zip
-EOF
-          fi
+          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.12-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOF
           echo "=== gradle-wrapper.properties ==="
           cat gradle/wrapper/gradle-wrapper.properties
 
