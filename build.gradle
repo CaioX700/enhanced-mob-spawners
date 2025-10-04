@@ -10,7 +10,12 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.yarn("${yarn_mappings}")
+
+    // ✅ Loom 1.10+: use layered mappings (Yarn)
+    mappings loom.layered {
+        addLayer(loom.yarnMappings("${yarn_mappings}"))
+    }
+
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 }
