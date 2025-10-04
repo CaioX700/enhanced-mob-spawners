@@ -1,10 +1,8 @@
 pluginManagement {
-	repositories {
-		maven {
-			name = 'Fabric'
-			url = 'https://maven.fabricmc.net/'
-		}
-		mavenCentral()
-		gradlePluginPortal()
-	}
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' } // Loom
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
+rootProject.name = "enhanced-mob-spawners"

@@ -4,14 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, master ]
-    paths:
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'settings.gradle.kts'
-      - 'gradle.properties'
-      - 'src/**'
-      - 'gradle/wrapper/**'
-      - '.github/workflows/build-fabric-1_21_8.yml'
 
 jobs:
   build:
@@ -27,46 +19,21 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # Instala a CLI do Gradle e configura cache básico
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      # Escreve um wrapper 8.12 no runner (evita pegar 8.8)
-      - name: Write Gradle wrapper 8.12
+      # ⚡️ Gera um wrapper NOVO na versão 8.13 (serve 8.12+)
+      - name: Generate Gradle Wrapper 8.13
         run: |
-          mkdir -p gradle/wrapper
-          cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.12-bin.zip
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          EOF
-          echo "=== gradle-wrapper.properties ==="
-          cat gradle/wrapper/gradle-wrapper.properties
+          gradle --version
+          gradle wrapper --gradle-version 8.13 --distribution-type bin
+          chmod +x ./gradlew
+          ./gradlew --version
 
-      - name: Make gradlew executable (if present)
-        run: |
-          if [ -f "./gradlew" ]; then
-            chmod +x ./gradlew
-          fi
-
-      - name: Build
-        run: |
-          if [ -x "./gradlew" ]; then
-            ./gradlew --no-daemon clean build -x test
-          else
-            gradle --no-daemon clean build -x test
-          fi
+      # Build usando o wrapper recém-gerado
+      - name: Build with Gradle Wrapper
+        run: ./gradlew --no-daemon clean build -x test
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
